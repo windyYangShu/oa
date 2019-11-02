@@ -1,0 +1,36 @@
+﻿<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 开启包下扫描 -->
+    <context:component-scan base-package="cn.uestc.oa.dao"/>
+
+    <!-- 数据源的具体配置 -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <!-- 当需要部署到网站上时，数据库的连接和密码都是要修改的，因为有些云平台可能对密码是有限制的 -->
+        <property name="url" value="jdbc:mysql://localhost:3306/oa?useUnicode=true&amp;characterEncoding=utf-8"/>
+        <property name="username" value="root"/>
+        <property name="password" value="123"/>
+    </bean>
+
+    <!-- 配置数据库和mybatis的映射关系 -->
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 配置数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 指定一个包名，mybatis会在指定包名下搜索需要的JavaBean -->
+        <property name="typeAliasesPackage" value="cn.uestc.oa.entity"/>
+    </bean>
+
+    <!-- 配置Mapper映射器，告诉mybatis到哪里去找开发者写的SQL语句 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sessionFactory"/>
+        <!-- 使用包名 -->
+        <property name="basePackage" value="cn.uestc.oa.dao"/>
+    </bean>
+
+</beans>

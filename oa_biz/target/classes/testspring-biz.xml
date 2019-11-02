@@ -1,0 +1,46 @@
+﻿<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <import resource="spring-dao.xml"/>
+
+    <context:component-scan base-package="cn.uestc.oa.biz"/>
+    <aop:aspectj-autoproxy/>
+
+    <bean id="transationManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置事务增强处理Bean，指定事务管理器 -->
+    <tx:advice id="txAdvice" transaction-manager="transationManager">
+        <!-- 用于配置想起的事务定义 -->
+        <tx:attributes>
+            <!-- 指定对哪些方法起作用 -->
+            <!-- 所有以get开头的方法是只读的，一下几个方法均是的 -->
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="search*" read-only="true"/>
+            <!-- 其他方法使用默认的事务配置 -->
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- AOP配置的元素 -->
+    <aop:config>
+        <!-- 配置一个切入点，匹配cn.uestc.oa.biz包下的有类里的所有方法 -->
+        <aop:pointcut id="txpc" expression="execution(* cn.uestc.oa.biz.*.*(..))"/>
+        <!-- 指定在txpc切入点应用txAdvice事务增强处理 -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txpc"/>
+    </aop:config>
+
+</beans>
